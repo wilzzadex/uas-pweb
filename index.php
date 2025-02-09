@@ -175,7 +175,13 @@ $dataMostLiked = mysqli_fetch_all($resultMostLiked, MYSQLI_ASSOC);
 												</tr>
 												<tr>
 													<td colspan="2">
-														<?= your_rating($recipe['id']) ?>
+
+														<?php if (isset($_SESSION['id'])): ?>
+															<?= your_rating($recipe['id']) ?>
+														<?php else : ?>
+															<?= calculate_rating($recipe['id']) ?>
+														<?php endif; ?>
+
 													</td>
 
 												</tr>
@@ -231,8 +237,14 @@ $dataMostLiked = mysqli_fetch_all($resultMostLiked, MYSQLI_ASSOC);
 													</td>
 												</tr>
 												<tr>
+
 													<td colspan="2">
-														<?= your_rating($recipe['id']) ?>
+														<?php if (isset($_SESSION['id'])): ?>
+															<?= your_rating($recipe['id']) ?>
+														<?php else : ?>
+															<?= calculate_rating($recipe['id']) ?>
+														<?php endif; ?>
+
 													</td>
 
 												</tr>
@@ -502,7 +514,7 @@ $dataMostLiked = mysqli_fetch_all($resultMostLiked, MYSQLI_ASSOC);
 			});
 		});
 
-		
+
 		// check session error
 		<?php if (isset($_SESSION['error'])): ?>
 			Swal.fire({

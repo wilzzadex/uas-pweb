@@ -1,14 +1,14 @@
 <?php 
 
 // check session login
-if(!isset($_SESSION)) {
+//if(!isset($_SESSION)) {
     session_start();
-}
+//}
 
-require_once $_SERVER['DOCUMENT_ROOT'] . "/uas-pweb/config/koneksi.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/config/koneksi.php";
 
 function base_url() {
-    $base_url = "http://localhost/uas-pweb/";
+    $base_url = "https://rasabersama.ansita.cloud/";
     return $base_url;
 }
 

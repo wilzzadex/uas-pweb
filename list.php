@@ -122,7 +122,11 @@ $cat = mysqli_fetch_assoc($resultDetail);
                                                 </tr>
                                                 <tr>
                                                     <td colspan="2">
-                                                        <?= your_rating($recipe['id']) ?>
+                                                        <?php if (isset($_SESSION['id'])): ?>
+                                                            <?= your_rating($recipe['id']) ?>
+                                                        <?php else : ?>
+                                                            <?= calculate_rating($recipe['id']) ?>
+                                                        <?php endif; ?>
                                                     </td>
 
                                                 </tr>
@@ -359,14 +363,14 @@ $cat = mysqli_fetch_assoc($resultDetail);
         // find class send_rating
         $(document).on('click', '.send_rating', function() {
             // check if user is logged in
-            // <?php if (!isset($_SESSION['id'])): ?>
-            //     Swal.fire({
-            //         icon: 'warning',
-            //         title: 'Oops...',
-            //         text: 'Silahkan login terlebih dahulu untuk memberikan rating'
-            //     });
-            //     return;
-            // <?php endif; ?>
+             <?php if (!isset($_SESSION['id'])): ?>
+                 Swal.fire({
+                     icon: 'warning',
+                     title: 'Oops...',
+                     text: 'Silahkan login terlebih dahulu untuk memberikan rating'
+                 });
+                 return;
+             <?php endif; ?>
 
             var rating = $(this).data('rating');
             var recipeId = $(this).data('recipeid');
@@ -392,7 +396,7 @@ $cat = mysqli_fetch_assoc($resultDetail);
             });
         });
 
-        // check session error
+         
         <?php if (isset($_SESSION['error'])): ?>
             Swal.fire({
                 icon: 'error',

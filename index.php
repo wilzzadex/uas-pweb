@@ -1,13 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<?php
+
+// if (session_status() == PHP_SESSION_NONE) {
+session_start();
+// }
+
+
+// get data from category 
+include "config/koneksi.php";
+include "utils/helper.php";
+
+$query = "SELECT * FROM categories";
+$result = mysqli_query($conn, $query);
+
+$dataCategory = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+$queryMostPopular = "SELECT r.*, SUM(rc.rating) as total_rating 
+                     FROM recipes r 
+                     LEFT JOIN recipe_comment rc ON r.id = rc.recipe_id 
+                     GROUP BY r.id 
+                     ORDER BY total_rating DESC 
+                     LIMIT 6";
+$resultMostPopular = mysqli_query($conn, $queryMostPopular);
+$dataMostPopular = mysqli_fetch_all($resultMostPopular, MYSQLI_ASSOC);
+
+
+$queryMostLiked = "SELECT r.*, COUNT(rl.recipe_id) as total_likes 
+                   FROM recipes r 
+                   LEFT JOIN recipe_likes rl ON r.id = rl.recipe_id 
+                   GROUP BY r.id 
+                   ORDER BY total_likes DESC 
+                   LIMIT 6";
+$resultMostLiked = mysqli_query($conn, $queryMostLiked);
+$dataMostLiked = mysqli_fetch_all($resultMostLiked, MYSQLI_ASSOC);
+
+?>
+
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 	<meta name="description" content="" />
 	<meta name="author" content="" />
 	<title>Rasa Bersama</title>
-	<link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+	<link rel="icon" type="image/x-icon" href="assets-fe/logo.png" />
 	<!-- Bootstrap icons-->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
 	<!-- Google fonts-->
@@ -32,15 +69,25 @@
 			</button>
 			<div class="collapse navbar-collapse" id="navbarResponsive">
 				<ul class="navbar-nav ms-auto me-4 my-3 my-lg-0">
-					<li class="nav-item"><a class="nav-link me-lg-3" href="#features">Features</a></li>
-					<li class="nav-item"><a class="nav-link me-lg-3" href="#download">Download</a></li>
+					<?php foreach ($dataCategory as $category): ?>
+						<li class="nav-item"><a class="nav-link me-lg-3" href="list.php?category=<?= $category['slug'] ?>"><?= $category['name'] ?></a></li>
+					<?php endforeach; ?>
 				</ul>
-				<button class="btn btn-custom-primary rounded-pill px-3 mb-2 mb-lg-0" data-bs-toggle="modal" data-bs-target="#modalLogin">
-					<span class="d-flex align-items-center">
-						<i class="bi-person-fill me-2"></i>
-						<span class="small">Login</span>
-					</span>
-				</button>
+				<?php if (!isset($_SESSION['id'])): ?>
+					<button class="btn btn-custom-primary rounded-pill px-3 mb-2 mb-lg-0" data-bs-toggle="modal" data-bs-target="#modalLogin">
+						<span class="d-flex align-items-center">
+							<i class="bi-person-fill me-2"></i>
+							<span class="small">Login</span>
+						</span>
+					</button>
+				<?php else: ?>
+					<a href="dashboard" class="btn btn-custom-primary rounded-pill px-3 mb-2 mb-lg-0">
+						<span class="d-flex align-items-center">
+							<i class="bi-person-fill me-2"></i>
+							<span class="small">Dashboard Saya</span>
+						</span>
+					</a>
+				<?php endif; ?>
 			</div>
 		</div>
 	</nav>
@@ -53,10 +100,7 @@
 					<div class="mb-5 mb-lg-0 text-center text-lg-start">
 						<h4 class="display-1 lh-1 mb-3">Rasa Bersama</h4>
 						<p class="lead fw-normal text-muted mb-5">Selamat datang di RasaBersama, tempat di mana rasa bertemu dengan kebersamaan! Temukan berbagai resep unik dan autentik dari seluruh penjuru nusantara hingga mancanegara, atau bagikan kreasi kuliner favorit Anda kepada dunia. Bergabunglah dengan komunitas pecinta kuliner, beri inspirasi, dan nikmati perjalanan mengeksplorasi kekayaan cita rasa bersama. Di sini, setiap masakan adalah cerita, dan setiap rasa adalah pengalaman untuk dibagikan.</p>
-						<div class="d-flex flex-column flex-lg-row align-items-center">
-							<a class="me-lg-3 mb-4 mb-lg-0" href="#!"><img class="app-badge" src="assets-fe/assets/img/google-play-badge.svg" alt="..." /></a>
-							<a href="#!"><img class="app-badge" src="assets-fe/assets/img/app-store-badge.svg" alt="..." /></a>
-						</div>
+
 					</div>
 				</div>
 				<div class="col-lg-6">
@@ -95,11 +139,11 @@
 		</div>
 	</header>
 	<!-- Quote/testimonial aside-->
-	<aside class="text-center bg-gradient-primary-to-secondary">
+	<aside class="text-center bg-gradient-custom">
 		<div class="container px-5">
 			<div class="row gx-5 justify-content-center">
 				<div class="col-xl-8">
-					<div class="h2 fs-1 text-white mb-4">Resep Paling Populer</div>
+					<div class="h2 fs-1 text-white">Resep Paling Populer</div>
 				</div>
 			</div>
 		</div>
@@ -108,128 +152,113 @@
 	<section id="features">
 		<div class="container px-5">
 			<div class="row gx-5 align-items-center">
-				<div class="col-lg-8 order-lg-1 mb-5 mb-lg-0">
+				<div class="col-lg-12 order-lg-1 mb-5 mb-lg-0">
 					<div class="container-fluid px-5">
 						<div class="row gx-5">
-							<div class="col-md-6 mb-5">
-								<!-- Feature item-->
-								<div class="text-center">
-									<i class="bi-phone icon-feature text-gradient d-block mb-3"></i>
-									<h3 class="font-alt">Device Mockups</h3>
-									<p class="text-muted mb-0">Ready to use HTML/CSS device mockups, no Photoshop required!</p>
+							<?php foreach ($dataMostPopular as $recipe): ?>
+								<div class="col-md-4 mb-5">
+									<div class="card">
+										<img src="<?= base_url() ?>uploads/<?= $recipe['image'] ?>" class="card-img-top" style="max-height: 200px;object-fit: cover;" alt="...">
+										<div class="card-body">
+											<table style="width: 100%;">
+												<tr>
+													<td>
+														<h5 class="card-title"><a href="" style="text-decoration: none;"><?= $recipe['title'] ?></a></h5>
+													</td>
+													<td rowspan="2" class="text-right">
+														<?php if (is_like($recipe['id'])): ?>
+															<i class="bi-heart-fill text-danger" onclick="like(this,'unlike')" id="<?= $recipe['id'] ?>" style="cursor: pointer;"></i> <?= calculate_like($recipe['id']) ?>
+														<?php else: ?>
+															<i class="bi-heart text-danger" onclick="like(this,'like')" id="<?= $recipe['id'] ?>" style="cursor: pointer;"></i> <?= calculate_like($recipe['id']) ?>
+														<?php endif; ?>
+													</td>
+												</tr>
+												<tr>
+													<td colspan="2">
+														<?= your_rating($recipe['id']) ?>
+													</td>
+
+												</tr>
+											</table>
+										</div>
+									</div>
+
 								</div>
-							</div>
-							<div class="col-md-6 mb-5">
-								<!-- Feature item-->
-								<div class="text-center">
-									<i class="bi-camera icon-feature text-gradient d-block mb-3"></i>
-									<h3 class="font-alt">Flexible Use</h3>
-									<p class="text-muted mb-0">Put an image, video, animation, or anything else in the screen!</p>
-								</div>
-							</div>
+							<?php endforeach; ?>
+
+
 						</div>
-						<div class="row">
-							<div class="col-md-6 mb-5 mb-md-0">
-								<!-- Feature item-->
-								<div class="text-center">
-									<i class="bi-gift icon-feature text-gradient d-block mb-3"></i>
-									<h3 class="font-alt">Free to Use</h3>
-									<p class="text-muted mb-0">As always, this theme is free to download and use for any purpose!</p>
-								</div>
-							</div>
-							<div class="col-md-6">
-								<!-- Feature item-->
-								<div class="text-center">
-									<i class="bi-patch-check icon-feature text-gradient d-block mb-3"></i>
-									<h3 class="font-alt">Open Source</h3>
-									<p class="text-muted mb-0">Since this theme is MIT licensed, you can use it commercially!</p>
-								</div>
-							</div>
-						</div>
+
 					</div>
 				</div>
-				<div class="col-lg-4 order-lg-0">
-					<!-- Features section device mockup-->
-					<div class="features-device-mockup">
-						<svg class="circle" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-							<defs>
-								<linearGradient id="circleGradient" gradientTransform="rotate(45)">
-									<stop class="gradient-start-color" offset="0%"></stop>
-									<stop class="gradient-end-color" offset="100%"></stop>
-								</linearGradient>
-							</defs>
-							<circle cx="50" cy="50" r="50"></circle>
-						</svg><svg class="shape-1 d-none d-sm-block" viewBox="0 0 240.83 240.83" xmlns="http://www.w3.org/2000/svg">
-							<rect x="-32.54" y="78.39" width="305.92" height="84.05" rx="42.03" transform="translate(120.42 -49.88) rotate(45)"></rect>
-							<rect x="-32.54" y="78.39" width="305.92" height="84.05" rx="42.03" transform="translate(-49.88 120.42) rotate(-45)"></rect>
-						</svg><svg class="shape-2 d-none d-sm-block" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-							<circle cx="50" cy="50" r="50"></circle>
-						</svg>
-						<div class="device-wrapper">
-							<div class="device" data-device="iPhoneX" data-orientation="portrait" data-color="black">
-								<div class="screen bg-black">
-									<!-- PUT CONTENTS HERE:-->
-									<!-- * * This can be a video, image, or just about anything else.-->
-									<!-- * * Set the max width of your media to 100% and the height to-->
-									<!-- * * 100% like the demo example below.-->
-									<video muted="muted" autoplay="" loop="" style="max-width: 100%; height: 100%">
-										<source src="assets/img/demo-screen.mp4" type="video/mp4" />
-									</video>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
+
 			</div>
 		</div>
 	</section>
 	<!-- Basic features section-->
-	<section class="bg-light">
+	<aside class="text-center bg-gradient-custom">
 		<div class="container px-5">
-			<div class="row gx-5 align-items-center justify-content-center justify-content-lg-between">
-				<div class="col-12 col-lg-5">
-					<h2 class="display-4 lh-1 mb-4">Enter a new age of web design</h2>
-					<p class="lead fw-normal text-muted mb-5 mb-lg-0">This section is perfect for featuring some information about your application, why it was built, the problem it solves, or anything else! There's plenty of space for text here, so don't worry about writing too much.</p>
-				</div>
-				<div class="col-sm-8 col-md-6">
-					<div class="px-5 px-sm-0"><img class="img-fluid rounded-circle" src="https://source.unsplash.com/u8Jn2rzYIps/900x900" alt="..." /></div>
+			<div class="row gx-5 justify-content-center">
+				<div class="col-xl-8">
+					<div class="h2 fs-1 text-white">Resep Paling Disukai</div>
 				</div>
 			</div>
 		</div>
-	</section>
-	<!-- Call to action section-->
-	<section class="cta">
-		<div class="cta-content">
-			<div class="container px-5">
-				<h2 class="text-white display-1 lh-1 mb-4">
-					Stop waiting.
-					<br />
-					Start building.
-				</h2>
-				<a class="btn btn-outline-light py-3 px-4 rounded-pill" href="https://startbootstrap.com/theme/new-age" target="_blank">Download for free</a>
-			</div>
-		</div>
-	</section>
-	<!-- App badge section-->
-	<section class="bg-gradient-primary-to-secondary" id="download">
+	</aside>
+	<!-- App features section-->
+	<section id="features">
 		<div class="container px-5">
-			<h2 class="text-center text-white font-alt mb-4">Get the app now!</h2>
-			<div class="d-flex flex-column flex-lg-row align-items-center justify-content-center">
-				<a class="me-lg-3 mb-4 mb-lg-0" href="#!"><img class="app-badge" src="assets/img/google-play-badge.svg" alt="..." /></a>
-				<a href="#!"><img class="app-badge" src="assets/img/app-store-badge.svg" alt="..." /></a>
+			<div class="row gx-5 align-items-center">
+				<div class="col-lg-12 order-lg-1 mb-5 mb-lg-0">
+					<div class="container-fluid px-5">
+						<div class="row gx-5">
+							<?php foreach ($dataMostLiked as $recipe): ?>
+								<div class="col-md-4 mb-5">
+									<div class="card">
+										<img src="<?= base_url() ?>uploads/<?= $recipe['image'] ?>" class="card-img-top" style="max-height: 200px;object-fit: cover;" alt="...">
+										<div class="card-body">
+											<table style="width: 100%;">
+												<tr>
+													<td>
+														<h5 class="card-title"><a href="" style="text-decoration: none;"><?= $recipe['title'] ?></a></h5>
+													</td>
+													<td rowspan="2" class="text-right">
+														<?php if (is_like($recipe['id'])): ?>
+															<i class="bi-heart-fill text-danger" onclick="like(this,'unlike')" id="<?= $recipe['id'] ?>" style="cursor: pointer;"></i> <?= calculate_like($recipe['id']) ?>
+														<?php else: ?>
+															<i class="bi-heart text-danger" onclick="like(this,'like')" id="<?= $recipe['id'] ?>" style="cursor: pointer;"></i> <?= calculate_like($recipe['id']) ?>
+														<?php endif; ?>
+													</td>
+												</tr>
+												<tr>
+													<td colspan="2">
+														<?= your_rating($recipe['id']) ?>
+													</td>
+
+												</tr>
+											</table>
+										</div>
+									</div>
+
+								</div>
+							<?php endforeach; ?>
+
+						</div>
+
+					</div>
+				</div>
+
 			</div>
 		</div>
 	</section>
-	<!-- Footer-->
+	<!-- Basic features section-->
+
+
 	<footer class="bg-black text-center py-5">
 		<div class="container px-5">
 			<div class="text-white-50 small">
-				<div class="mb-2">&copy; Your Website 2023. All Rights Reserved.</div>
-				<a href="#!">Privacy</a>
-				<span class="mx-1">&middot;</span>
-				<a href="#!">Terms</a>
-				<span class="mx-1">&middot;</span>
-				<a href="#!">FAQ</a>
+				<div class="mb-2">2025&copy; Rasa Bersama . By Kelompok 6</div>
+
 			</div>
 		</div>
 	</footer>
@@ -242,67 +271,250 @@
 					<button class="btn-close btn-close-white" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body border-0 p-4">
-					<form id="contactForm" data-sb-form-api-token="API_TOKEN">
+					<form id="loginForm">
 						<!-- Name input-->
-						<div class="form-floating mb-3">
-							<input class="form-control" id="name" type="text" placeholder="Enter your name..." data-sb-validations="required" />
-							<label for="name">Full name</label>
-							<div class="invalid-feedback" data-sb-feedback="name:required">A name is required.</div>
-						</div>
+
 						<!-- Email address input-->
 						<div class="form-floating mb-3">
-							<input class="form-control" id="email" type="email" placeholder="name@example.com" data-sb-validations="required,email" />
-							<label for="email">Email address</label>
-							<div class="invalid-feedback" data-sb-feedback="email:required">An email is required.</div>
-							<div class="invalid-feedback" data-sb-feedback="email:email">Email is not valid.</div>
+							<input class="form-control" type="email" name="email" placeholder="Email..." />
+							<label for="email">Email</label>
+							<div class="invalid-feedback">Email Harus Diisi !</div>
 						</div>
+						<div class="form-floating mb-3">
+							<input class="form-control" type="password" name="password" placeholder="Password..." />
+							<label for="password">Password</label>
+							<div class="invalid-feedback">Password Harus Diisi !</div>
+						</div>
+
 						<!-- Phone number input-->
-						<div class="form-floating mb-3">
-							<input class="form-control" id="phone" type="tel" placeholder="(123) 456-7890" data-sb-validations="required" />
-							<label for="phone">Phone number</label>
-							<div class="invalid-feedback" data-sb-feedback="phone:required">A phone number is required.</div>
-						</div>
-						<!-- Message input-->
-						<div class="form-floating mb-3">
-							<textarea class="form-control" id="message" type="text" placeholder="Enter your message here..." style="height: 10rem" data-sb-validations="required"></textarea>
-							<label for="message">Message</label>
-							<div class="invalid-feedback" data-sb-feedback="message:required">A message is required.</div>
-						</div>
-						<!-- Submit success message-->
-						<!---->
-						<!-- This is what your users will see when the form-->
-						<!-- has successfully submitted-->
-						<div class="d-none" id="submitSuccessMessage">
-							<div class="text-center mb-3">
-								<div class="fw-bolder">Form submission successful!</div>
-								To activate this form, sign up at
-								<br />
-								<a href="https://startbootstrap.com/solution/contact-forms">https://startbootstrap.com/solution/contact-forms</a>
-							</div>
-						</div>
-						<!-- Submit error message-->
-						<!---->
-						<!-- This is what your users will see when there is-->
-						<!-- an error submitting the form-->
-						<div class="d-none" id="submitErrorMessage">
-							<div class="text-center text-danger mb-3">Error sending message!</div>
-						</div>
+
+
+
 						<!-- Submit Button-->
-						<div class="d-grid"><button class="btn btn-custom-primary rounded-pill btn-lg" id="submitButton" type="submit">Submit</button></div>
+						<div class="d-grid"><button class="btn btn-custom-primary rounded-pill btn-lg" id="loginButton" type="submit">Login</button></div>
 					</form>
+
+					<span>
+						Belum punya akun? <a href="#" data-bs-toggle="modal" data-bs-target="#modalDaftar">Daftar</a>
+					</span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="modalDaftar" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header bg-gradient-custom p-4">
+					<h5 class="modal-title font-alt text-white" id="feedbackModalLabel">Daftar</h5>
+					<button class="btn-close btn-close-white" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body border-0 p-4">
+					<form id="registerForm">
+						<!-- Name input-->
+						<div class="form-floating mb-3">
+							<input class="form-control" id="name" type="text" name="nama" placeholder="Nama Lengkap..." />
+							<label for="name">Nama Lengkap</label>
+							<div class="invalid-feedback">Nama Harus Diisi !</div>
+						</div>
+						<div class="form-floating mb-3">
+							<input class="form-control" id="email" type="email" name="email" placeholder="Email..." />
+							<label for="email">Email</label>
+							<div class="invalid-feedback">Email Harus Diisi !</div>
+						</div>
+						<div class="form-floating mb-3">
+							<input class="form-control" id="password" type="password" name="password" placeholder="Password..." />
+							<label for="password">Password</label>
+							<div class="invalid-feedback">Password Harus Diisi !</div>
+						</div>
+
+						<div class="form-floating mb-3">
+							<input class="form-control" id="konfirmasi_password" name="konfirmasi_password" type="password" placeholder="Password..." />
+							<label for="password">Konfirmasi Password</label>
+							<div class="invalid-feedback">Password Harus Diisi !</div>
+						</div>
+
+
+						<!-- Submit Button-->
+						<div class="d-grid"><button class="btn btn-custom-primary rounded-pill btn-lg" id="registerButton" type="submit">Daftar</button></div>
+					</form>
+
+					<span>
+						Sudah punya akun? <a href="#" data-bs-toggle="modal" data-bs-target="#modalLogin">Login</a>
+					</span>
 				</div>
 			</div>
 		</div>
 	</div>
 	<!-- Bootstrap core JS-->
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-	<!-- Core theme JS-->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 	<script src="assets-fe/js/scripts.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 	<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
 	<!-- * *                               SB Forms JS                               * *-->
 	<!-- * * Activate your form at https://startbootstrap.com/solution/contact-forms * *-->
 	<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
-	<script src="https://cdn.startbootstrap.com/sb-forms-latest.js"></script>
+
+	<script>
+		$('#registerForm').submit(function(e) {
+			e.preventDefault();
+			var data = $(this).serialize();
+			$.ajax({
+				url: 'register.php',
+				type: 'POST',
+				data: data,
+				success: function(response) {
+					Swal.fire({
+						icon: 'success',
+						title: 'Berhasil',
+						text: 'Registrasi berhasil, silahkan login'
+					});
+					$('#modalDaftar').modal('hide');
+					$('#registerForm')[0].reset();
+					window.location.reload();
+				},
+				error: function(response) {
+					if (response.status == 400) {
+						Swal.fire({
+							icon: 'error',
+							title: 'Oops...',
+							text: response.responseJSON.data
+						});
+					} else {
+						Swal.fire({
+							icon: 'error',
+							title: 'Oops...',
+							text: 'Terjadi kesalahan, silahkan coba lagi'
+						});
+					}
+				}
+			});
+		});
+
+		$('#loginForm').submit(function(e) {
+			e.preventDefault();
+			var data = $(this).serialize();
+			$.ajax({
+				url: 'login.php',
+				type: 'POST',
+				data: data,
+				success: function(response) {
+					Swal.fire({
+						icon: 'success',
+						title: 'Berhasil',
+						text: 'Login berhasil'
+					});
+					$('#modalLogin').modal('hide');
+					$('#loginForm')[0].reset();
+				},
+				error: function(response) {
+					if (response.status == 400) {
+						Swal.fire({
+							icon: 'error',
+							title: 'Oops...',
+							text: response.responseJSON.data
+						});
+					} else {
+						Swal.fire({
+							icon: 'error',
+							title: 'Oops...',
+							text: 'Terjadi kesalahan, silahkan coba lagi'
+						});
+					}
+				}
+			});
+		});
+
+		function like(e, type) {
+			// check if user is logged in
+			<?php if (!isset($_SESSION['id'])): ?>
+				Swal.fire({
+					icon: 'warning',
+					title: 'Oops...',
+					text: 'Silahkan login terlebih dahulu untuk memberikan like'
+				});
+				return;
+			<?php endif; ?>
+
+			var id = e.id;
+			$.ajax({
+				url: 'like.php',
+				type: 'POST',
+				data: {
+					id: id,
+					type: type
+				},
+				success: function(response) {
+					if (type == 'like') {
+						e.classList.remove('bi-heart');
+						e.classList.add('bi-heart-fill');
+					} else {
+						e.classList.remove('bi-heart-fill');
+						e.classList.add('bi-heart');
+					}
+					e.nextSibling.textContent = response.data.current_like;
+				},
+				error: function(response) {
+					Swal.fire({
+						icon: 'error',
+						title: 'Oops...',
+						text: 'Terjadi kesalahan, silahkan coba lagi'
+					});
+				}
+			});
+		}
+
+		// find class send_rating
+		$(document).on('click', '.send_rating', function() {
+			// check if user is logged in
+			// <?php if (!isset($_SESSION['id'])): ?>
+			//     Swal.fire({
+			//         icon: 'warning',
+			//         title: 'Oops...',
+			//         text: 'Silahkan login terlebih dahulu untuk memberikan rating'
+			//     });
+			//     return;
+			// <?php endif; ?>
+
+			var rating = $(this).data('rating');
+			var recipeId = $(this).data('recipeid');
+
+
+			$.ajax({
+				url: 'rating.php',
+				type: 'POST',
+				data: {
+					rating: rating,
+					recipeId: recipeId
+				},
+				success: function(response) {
+					window.location.reload();
+				},
+				error: function(response) {
+					Swal.fire({
+						icon: 'error',
+						title: 'Oops...',
+						text: 'Terjadi kesalahan, silahkan coba lagi'
+					});
+				}
+			});
+		});
+
+		
+		// check session error
+		<?php if (isset($_SESSION['error'])): ?>
+			Swal.fire({
+				icon: 'error',
+				title: 'Oops...',
+				text: '<?= $_SESSION['error'] ?>'
+			});
+		<?php endif; ?>
+		<?php unset($_SESSION['error']); ?>
+	</script>
+
+
 </body>
 
 </html>

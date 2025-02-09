@@ -1,8 +1,14 @@
 <?php
-$host = "localhost"; // Nama hostnya
+// $host = "host.docker.internal"; // Hostname
+$host = "localhost"; // Hostname
 $username = "root"; // Username
 $password = "root"; // Password (Isi jika menggunakan password)
-$database = "shopping"; // Nama databasenya
+$database = "food"; // Nama databasenya
 
-$conn = mysqli_connect($host, $username, $password, $database); // Koneksi ke MySQL
+$conn = mysqli_connect($host, $username, $password, $database);
+
+if (!$conn) {
+    die("Koneksi gagal: " . mysqli_connect_error());
+}
+
 ?>

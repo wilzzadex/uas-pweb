@@ -21,6 +21,7 @@ function is_logged_in() {
 }
 
 
+
 function calculate_rating($recipeId) {  
     global $conn;
 
@@ -200,4 +201,104 @@ function is_like($recipeId) {
     } else {
         return false;
     }
+}
+
+function get_user_submitted_recipe($recipeId) {
+    global $conn;
+
+    $sql = "SELECT * FROM recipes WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $recipeId);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+    $recipe = $result->fetch_assoc();
+
+    $sqlUser = "SELECT * FROM users WHERE id = ?";
+    $stmtUser = $conn->prepare($sqlUser);
+    $stmtUser->bind_param("i", $recipe['user_id']);
+    $stmtUser->execute();
+
+    $resultUser = $stmtUser->get_result();
+    $user = $resultUser->fetch_assoc();
+
+    return $user;
+}
+
+function get_since_ago($date){
+    $time = strtotime($date);
+    $current_time = time();
+    $time_difference = $current_time - $time;
+    $seconds = $time_difference;
+    $minutes      = round($seconds / 60);           // value 60 is seconds
+    $hours        = round($seconds / 3600);         // value 3600 is 60 minutes * 60 sec
+    $days         = round($seconds / 86400);        // value 86400 is 24 hours * 60 minutes * 60 sec
+    $weeks        = round($seconds / 604800);       // value 604800 is 7 days * 24 hours * 60 minutes * 60 sec
+    $months       = round($seconds / 2629440);      // value 2629440 is (365+365+365+365+366)/5/12 * 24 hours * 60 minutes * 60 sec
+    $years        = round($seconds / 31553280);     // value 31553280 is 365+365+365+365+366 * 24 hours * 60 minutes * 60 sec
+    if ($seconds <= 60){
+        return "Baru saja";
+    } else if ($minutes <= 60){
+        if ($minutes == 1){
+            return "1 menit yang lalu";
+        } else {
+            return "$minutes menit yang lalu";
+        }
+    } else if ($hours <= 24){
+        if ($hours == 1){
+            return "1 jam yang lalu";
+        } else {
+            return "$hours jam yang lalu";
+        }
+    } else if ($days <= 7){
+        if ($days == 1){
+            return "Kemarin";
+        } else {
+            return "$days hari yang lalu";
+        }
+    } else if ($weeks <= 4.3){  // 4.3 == 30/7
+        if ($weeks == 1){
+            return "1 minggu yang lalu";
+        } else {
+            return "$weeks minggu yang lalu";
+        }
+    } else if ($months <= 12){
+        if ($months == 1){
+            return "1 bulan yang lalu";
+        } else {
+            return "$months bulan yang lalu";
+        }
+    } else {
+        if ($years == 1){
+            return "1 tahun yang lalu";
+        } else {
+            return "$years tahun yang lalu";
+        }
+    }
+
+}
+
+function get_user_submit_comment($commentId) {
+    global $conn;
+
+    $sql = "SELECT * FROM recipe_comment WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $commentId);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+    $comment = $result->fetch_assoc();
+
+    $sqlUser = "SELECT * FROM users WHERE id = ?";
+    $stmtUser = $conn->prepare($sqlUser);
+
+    $stmtUser->bind_param("i", $comment['user_id']);
+
+    $stmtUser->execute();
+
+    $resultUser = $stmtUser->get_result();
+
+    $user = $resultUser->fetch_assoc();
+
+    return $user;
 }

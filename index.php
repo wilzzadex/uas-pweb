@@ -2,7 +2,7 @@
 <html lang="en">
 
 <?php
-
+error_reporting(0);
 // if (session_status() == PHP_SESSION_NONE) {
 session_start();
 // }
@@ -106,33 +106,7 @@ $dataMostLiked = mysqli_fetch_all($resultMostLiked, MYSQLI_ASSOC);
 				<div class="col-lg-6">
 					<!-- Masthead device mockup feature-->
 					<div class="masthead-device-mockup">
-						<svg class="circle" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-							<defs>
-								<linearGradient id="circleGradient" gradientTransform="rotate(45)">
-									<stop class="gradient-start-color" offset="0%"></stop>
-									<stop class="gradient-end-color" offset="100%"></stop>
-								</linearGradient>
-							</defs>
-							<circle cx="50" cy="50" r="50"></circle>
-						</svg><svg class="shape-1 d-none d-sm-block" viewBox="0 0 240.83 240.83" xmlns="http://www.w3.org/2000/svg">
-							<rect x="-32.54" y="78.39" width="305.92" height="84.05" rx="42.03" transform="translate(120.42 -49.88) rotate(45)"></rect>
-							<rect x="-32.54" y="78.39" width="305.92" height="84.05" rx="42.03" transform="translate(-49.88 120.42) rotate(-45)"></rect>
-						</svg><svg class="shape-2 d-none d-sm-block" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-							<circle cx="50" cy="50" r="50"></circle>
-						</svg>
-						<div class="device-wrapper">
-							<div class="device" data-device="iPhoneX" data-orientation="portrait" data-color="black">
-								<div class="screen bg-black">
-									<!-- PUT CONTENTS HERE:-->
-									<!-- * * This can be a video, image, or just about anything else.-->
-									<!-- * * Set the max width of your media to 100% and the height to-->
-									<!-- * * 100% like the demo example below.-->
-									<video muted="muted" autoplay="" loop="" style="max-width: 100%; height: 100%">
-										<source src="assets/img/demo-screen.mp4" type="video/mp4" />
-									</video>
-								</div>
-							</div>
-						</div>
+						<img src="<?= base_url() ?>assets-fe/bg-header.png" class="img-fluid" alt="..." />
 					</div>
 				</div>
 			</div>
@@ -163,8 +137,8 @@ $dataMostLiked = mysqli_fetch_all($resultMostLiked, MYSQLI_ASSOC);
 											<table style="width: 100%;">
 												<tr>
 													<td>
-														<h5 class="card-title"><a href="" style="text-decoration: none;"><?= $recipe['title'] ?></a></h5>
-													</td>
+                                                        <h5 class="card-title"><a href="detail.php?id=<?= $recipe['id'] ?>" style="text-decoration: none;"><?= $recipe['title'] ?></a></h5>
+                                                    </td>
 													<td rowspan="2" class="text-right">
 														<?php if (is_like($recipe['id'])): ?>
 															<i class="bi-heart-fill text-danger" onclick="like(this,'unlike')" id="<?= $recipe['id'] ?>" style="cursor: pointer;"></i> <?= calculate_like($recipe['id']) ?>
@@ -226,8 +200,8 @@ $dataMostLiked = mysqli_fetch_all($resultMostLiked, MYSQLI_ASSOC);
 											<table style="width: 100%;">
 												<tr>
 													<td>
-														<h5 class="card-title"><a href="" style="text-decoration: none;"><?= $recipe['title'] ?></a></h5>
-													</td>
+                                                        <h5 class="card-title"><a href="detail.php?id=<?= $recipe['id'] ?>" style="text-decoration: none;"><?= $recipe['title'] ?></a></h5>
+                                                    </td>
 													<td rowspan="2" class="text-right">
 														<?php if (is_like($recipe['id'])): ?>
 															<i class="bi-heart-fill text-danger" onclick="like(this,'unlike')" id="<?= $recipe['id'] ?>" style="cursor: pointer;"></i> <?= calculate_like($recipe['id']) ?>
@@ -239,11 +213,9 @@ $dataMostLiked = mysqli_fetch_all($resultMostLiked, MYSQLI_ASSOC);
 												<tr>
 
 													<td colspan="2">
-														<?php if (isset($_SESSION['id'])): ?>
-															<?= your_rating($recipe['id']) ?>
-														<?php else : ?>
-															<?= calculate_rating($recipe['id']) ?>
-														<?php endif; ?>
+
+														<?= calculate_rating($recipe['id']) ?>
+
 
 													</td>
 
@@ -481,14 +453,15 @@ $dataMostLiked = mysqli_fetch_all($resultMostLiked, MYSQLI_ASSOC);
 		// find class send_rating
 		$(document).on('click', '.send_rating', function() {
 			// check if user is logged in
-			// <?php if (!isset($_SESSION['id'])): ?>
-			//     Swal.fire({
-			//         icon: 'warning',
-			//         title: 'Oops...',
-			//         text: 'Silahkan login terlebih dahulu untuk memberikan rating'
-			//     });
-			//     return;
-			// <?php endif; ?>
+			return;
+			<?php if (!isset($_SESSION['id'])): ?>
+				Swal.fire({
+					icon: 'warning',
+					title: 'Oops...',
+					text: 'Silahkan login terlebih dahulu untuk memberikan rating'
+				});
+				return;
+			<?php endif; ?>
 
 			var rating = $(this).data('rating');
 			var recipeId = $(this).data('recipeid');

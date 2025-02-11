@@ -110,7 +110,7 @@ $cat = mysqli_fetch_assoc($resultDetail);
                                             <table style="width: 100%;">
                                                 <tr>
                                                     <td>
-                                                        <h5 class="card-title"><a href="" style="text-decoration: none;"><?= $recipe['title'] ?></a></h5>
+                                                        <h5 class="card-title"><a href="detail.php?id=<?= $recipe['id'] ?>" style="text-decoration: none;"><?= $recipe['title'] ?></a></h5>
                                                     </td>
                                                     <td rowspan="2" class="text-right">
                                                         <?php if (is_like($recipe['id'])): ?>
@@ -122,11 +122,9 @@ $cat = mysqli_fetch_assoc($resultDetail);
                                                 </tr>
                                                 <tr>
                                                     <td colspan="2">
-                                                        <?php if (isset($_SESSION['id'])): ?>
-                                                            <?= your_rating($recipe['id']) ?>
-                                                        <?php else : ?>
-                                                            <?= calculate_rating($recipe['id']) ?>
-                                                        <?php endif; ?>
+
+                                                        <?= calculate_rating($recipe['id']) ?>
+
                                                     </td>
 
                                                 </tr>
@@ -147,88 +145,88 @@ $cat = mysqli_fetch_assoc($resultDetail);
     </section>
 
     <div class="modal fade" id="modalLogin" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered">
-			<div class="modal-content">
-				<div class="modal-header bg-gradient-custom p-4">
-					<h5 class="modal-title font-alt text-white" id="feedbackModalLabel">Login</h5>
-					<button class="btn-close btn-close-white" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body border-0 p-4">
-					<form id="loginForm">
-						<!-- Name input-->
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-gradient-custom p-4">
+                    <h5 class="modal-title font-alt text-white" id="feedbackModalLabel">Login</h5>
+                    <button class="btn-close btn-close-white" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body border-0 p-4">
+                    <form id="loginForm">
+                        <!-- Name input-->
 
-						<!-- Email address input-->
-						<div class="form-floating mb-3">
-							<input class="form-control" type="email" name="email" placeholder="Email..." />
-							<label for="email">Email</label>
-							<div class="invalid-feedback">Email Harus Diisi !</div>
-						</div>
-						<div class="form-floating mb-3">
-							<input class="form-control" type="password" name="password" placeholder="Password..." />
-							<label for="password">Password</label>
-							<div class="invalid-feedback">Password Harus Diisi !</div>
-						</div>
+                        <!-- Email address input-->
+                        <div class="form-floating mb-3">
+                            <input class="form-control" type="email" name="email" placeholder="Email..." />
+                            <label for="email">Email</label>
+                            <div class="invalid-feedback">Email Harus Diisi !</div>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input class="form-control" type="password" name="password" placeholder="Password..." />
+                            <label for="password">Password</label>
+                            <div class="invalid-feedback">Password Harus Diisi !</div>
+                        </div>
 
-						<!-- Phone number input-->
-
-
-
-						<!-- Submit Button-->
-						<div class="d-grid"><button class="btn btn-custom-primary rounded-pill btn-lg" id="loginButton" type="submit">Login</button></div>
-					</form>
-
-					<span>
-						Belum punya akun? <a href="#" data-bs-toggle="modal" data-bs-target="#modalDaftar">Daftar</a>
-					</span>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<div class="modal fade" id="modalDaftar" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered">
-			<div class="modal-content">
-				<div class="modal-header bg-gradient-custom p-4">
-					<h5 class="modal-title font-alt text-white" id="feedbackModalLabel">Daftar</h5>
-					<button class="btn-close btn-close-white" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body border-0 p-4">
-					<form id="registerForm">
-						<!-- Name input-->
-						<div class="form-floating mb-3">
-							<input class="form-control" id="name" type="text" name="nama" placeholder="Nama Lengkap..." />
-							<label for="name">Nama Lengkap</label>
-							<div class="invalid-feedback">Nama Harus Diisi !</div>
-						</div>
-						<div class="form-floating mb-3">
-							<input class="form-control" id="email" type="email" name="email" placeholder="Email..." />
-							<label for="email">Email</label>
-							<div class="invalid-feedback">Email Harus Diisi !</div>
-						</div>
-						<div class="form-floating mb-3">
-							<input class="form-control" id="password" type="password" name="password" placeholder="Password..." />
-							<label for="password">Password</label>
-							<div class="invalid-feedback">Password Harus Diisi !</div>
-						</div>
-
-						<div class="form-floating mb-3">
-							<input class="form-control" id="konfirmasi_password" name="konfirmasi_password" type="password" placeholder="Password..." />
-							<label for="password">Konfirmasi Password</label>
-							<div class="invalid-feedback">Password Harus Diisi !</div>
-						</div>
+                        <!-- Phone number input-->
 
 
-						<!-- Submit Button-->
-						<div class="d-grid"><button class="btn btn-custom-primary rounded-pill btn-lg" id="registerButton" type="submit">Daftar</button></div>
-					</form>
 
-					<span>
-						Sudah punya akun? <a href="#" data-bs-toggle="modal" data-bs-target="#modalLogin">Login</a>
-					</span>
-				</div>
-			</div>
-		</div>
-	</div>
+                        <!-- Submit Button-->
+                        <div class="d-grid"><button class="btn btn-custom-primary rounded-pill btn-lg" id="loginButton" type="submit">Login</button></div>
+                    </form>
+
+                    <span>
+                        Belum punya akun? <a href="#" data-bs-toggle="modal" data-bs-target="#modalDaftar">Daftar</a>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalDaftar" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-gradient-custom p-4">
+                    <h5 class="modal-title font-alt text-white" id="feedbackModalLabel">Daftar</h5>
+                    <button class="btn-close btn-close-white" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body border-0 p-4">
+                    <form id="registerForm">
+                        <!-- Name input-->
+                        <div class="form-floating mb-3">
+                            <input class="form-control" id="name" type="text" name="nama" placeholder="Nama Lengkap..." />
+                            <label for="name">Nama Lengkap</label>
+                            <div class="invalid-feedback">Nama Harus Diisi !</div>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input class="form-control" id="email" type="email" name="email" placeholder="Email..." />
+                            <label for="email">Email</label>
+                            <div class="invalid-feedback">Email Harus Diisi !</div>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input class="form-control" id="password" type="password" name="password" placeholder="Password..." />
+                            <label for="password">Password</label>
+                            <div class="invalid-feedback">Password Harus Diisi !</div>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input class="form-control" id="konfirmasi_password" name="konfirmasi_password" type="password" placeholder="Password..." />
+                            <label for="password">Konfirmasi Password</label>
+                            <div class="invalid-feedback">Password Harus Diisi !</div>
+                        </div>
+
+
+                        <!-- Submit Button-->
+                        <div class="d-grid"><button class="btn btn-custom-primary rounded-pill btn-lg" id="registerButton" type="submit">Daftar</button></div>
+                    </form>
+
+                    <span>
+                        Sudah punya akun? <a href="#" data-bs-toggle="modal" data-bs-target="#modalLogin">Login</a>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
     <footer class="bg-black text-center py-5">
@@ -363,14 +361,15 @@ $cat = mysqli_fetch_assoc($resultDetail);
         // find class send_rating
         $(document).on('click', '.send_rating', function() {
             // check if user is logged in
-             <?php if (!isset($_SESSION['id'])): ?>
-                 Swal.fire({
-                     icon: 'warning',
-                     title: 'Oops...',
-                     text: 'Silahkan login terlebih dahulu untuk memberikan rating'
-                 });
-                 return;
-             <?php endif; ?>
+            return;
+            <?php if (!isset($_SESSION['id'])): ?>
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Oops...',
+                    text: 'Silahkan login terlebih dahulu untuk memberikan rating'
+                });
+                return;
+            <?php endif; ?>
 
             var rating = $(this).data('rating');
             var recipeId = $(this).data('recipeid');
@@ -396,7 +395,7 @@ $cat = mysqli_fetch_assoc($resultDetail);
             });
         });
 
-         
+
         <?php if (isset($_SESSION['error'])): ?>
             Swal.fire({
                 icon: 'error',

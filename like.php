@@ -1,5 +1,6 @@
 <?php 
 
+date_default_timezone_set('Asia/Jakarta');
 
 require_once "config/koneksi.php";
 require_once "utils/jsonformatter.php";
